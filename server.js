@@ -1,23 +1,24 @@
+require('dotenv').config();
 const express = require('express');
-const dotenv = require('dotenv');
-const db = require('./config/db');
-const userRoutes = require('./routes/user_routes');
-const authRoutes = require('./routes/auth_routes');
+const morgan = require('morgan');
+const { sequelize } = require('./models');
+// const authRoutes = require('./routes/auth_routes');
+// const userRoutes = require('./routes/user_routes');
+ const logger = require('./utils/logger');
 
-dotenv.config();
 const app = express();
-app.use(express.json()); // Middleware to parse JSON bodies
-const PORT = process.env.PORT || 5000;
+app.use(express.json());
+app.use(morgan('dev'));
 
-//routes
-app.use('/api/users', userRoutes);  
-app.use('/api/auth', authRoutes);
+//app.use('/api/auth', authRoutes);
+//app.use('/api/users', userRoutes);
 
-db.sync()
-  .then(() => console.log('Database connected successfully'))
-  .catch(err => console.error('Database connection failed:', err));
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+sequelize.sync().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`Server started on port ${PORT}`);
+  });
 });
+
 
